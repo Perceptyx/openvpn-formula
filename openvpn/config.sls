@@ -89,7 +89,19 @@ openvpn_config_{{ type }}_{{ name }}_passwd_file:
       - service: {{ service_id }}
 {% endif %}
 
-{% if config.tls_auth is defined and config.ta_content is defined %}
+{% if config.ta_content is defined and config.tls_crypt is defined %}
+# Deploy {{ type }} {{ name }} TLS key file
+openvpn_config_{{ type }}_{{ name }}_tls_crypt_file:
+  file.managed:
+    - name: {{ config.tls_crypt.split()[0] }}
+    - contents_pillar: openvpn:{{ type }}:{{ name }}:ta_content
+    - makedirs: True
+    - mode: 600
+    - user: {% if config.user is defined %}{{ config.user }}{% else %}{{ map.user }}{% endif %}
+    - group: {% if config.group is defined %}{{ config.group }}{% else %}{{ map.group }}{% endif %}
+    - watch_in:
+      - service: {{ service_id }}
+{% elif config.ta_content is defined and config.tls_auth is defined %}
 # Deploy {{ type }} {{ name }} TLS key file
 openvpn_config_{{ type }}_{{ name }}_tls_auth_file:
   file.managed:
@@ -123,6 +135,9 @@ openvpn_{{ type }}_{{ name }}_status_file:
   file.managed:
     - name: {{ config.status }}
     - makedirs: True
+    - user: root
+    - group: 0  # different names on FreeBSD and Debian/Ubuntu
+    - mode: 600
     - watch_in:
 {%- if map.multi_services %}
       - service: openvpn_{{name}}_service
