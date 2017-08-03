@@ -58,8 +58,8 @@ openvpn_config_{{ type }}_{{ name }}_key_file:
     - contents_pillar: openvpn:{{ type }}:{{ name }}:key_content
     - makedirs: True
     - mode: 600
-    - user: {% if config.user is defined %}{{ config.user }}{% else %}{{ map.user }}{% endif %}
-    - group: {% if config.group is defined %}{{ config.group }}{% else %}{{ map.group }}{% endif %}
+    - user: root
+    - group: root
     - watch_in:
       - service: {{ service_id }}
 {% endif %}

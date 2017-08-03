@@ -21,4 +21,16 @@ openvpn_create_dh_{{ dh }}:
     - creates: {{ map.conf_dir }}/dh{{ dh }}.pem
     - require:
       - pkg: openvpn_pkgs
+    - watch_in:
+{% if salt['grains.has_value']('systemd') %}
+{% for type, names in salt['pillar.get']('openvpn', {}).iteritems() %}
+{% if type in ['client', 'server', 'peer'] %}
+{% for name in names %}
+      - service: openvpn_{{name}}_service
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% else %}
+      - service: openvpn_service
+{% endif %}
 {% endfor %}
