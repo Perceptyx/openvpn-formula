@@ -69,6 +69,11 @@ persist-key
 persist-tun
 {%- endif %}
 
+{%- if config.explicit_exit_notify is defined and config.explicit_exit_notify == False %}
+;explicit-exit-notify
+{%- else %}
+explicit-exit-notify
+{%- endif %}
 
 ; Data transfer
 {%- if config.comp_lzo is defined and config.comp_lzo == False %}
