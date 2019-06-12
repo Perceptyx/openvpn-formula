@@ -22,7 +22,7 @@ openvpn_config_{{ type }}_{{ name }}:
     - template: jinja
     - context:
         name: {{ name }}
-        config: {{ config }}
+        config: {{ config|tojson }}
         user: {{ map.user }}
         group: {{ map.group }}
     - watch_in:
