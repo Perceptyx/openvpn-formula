@@ -23,7 +23,7 @@ openvpn_create_dh_{{ dh }}:
       - pkg: openvpn_pkgs
     - watch_in:
 {% if salt['grains.has_value']('systemd') %}
-{% for type, names in salt['pillar.get']('openvpn', {}).iteritems() %}
+{% for type, names in salt['pillar.get']('openvpn', {}).items() %}
 {% if type in ['client', 'server', 'peer'] %}
 {% for name in names %}
       - service: openvpn_{{name}}_service
