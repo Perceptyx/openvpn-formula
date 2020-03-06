@@ -3,28 +3,21 @@
 # Template: {{ source }}
 
 {% include 'openvpn/files/common_opts.jinja' %}
+{%- set config = salt['pillar.get']("openvpn:{}:{}".format(type, name), {}) %}
 
 
 {%- if not (config.tls_server is defined and config.tls_server == False) %}
+{%- if not (config.secret is defined) %}
 tls-server
+{%- endif %}
 {%- endif %}
 
 {%- if config.local is defined %}
 local {{ config.local }}
 {%- endif %}
 
-{%- if config.port is defined %}
-port {{ config.port }}
-{%- else %}
-port 1194
-{%- endif %}
-
 {%- if config.port_share is defined %}
 port-share {{ config.port_share }}
-{%- endif %}
-
-{%- if config.daemon is defined and config.daemon == True %}
-daemon
 {%- endif %}
 
 {%- if config.topology is defined %}
@@ -34,16 +27,25 @@ topology {{ config.topology }}
 {%- if config.server is defined %}
 server {{ config.server }}
 {%- elif config.server_bridge is defined %}
-# server_bridge defined, skipping default server directive
-{%- elif config.mode is defined and config.mode == 'server' %}
-# server is being configured manually
+server-bridge {{ config.server_bridge }}
+{%- elif config.mode is defined %}
 mode {{ config.mode }}
-{%- else %}
-server 10.8.0.0 255.255.255.0
 {%- endif %}
 
 {%- if config.ifconfig_pool is defined %}
 ifconfig-pool {{ config.ifconfig_pool }}
+{%- endif %}
+
+{%- if config.server_ipv6 is defined %}
+server-ipv6 {{ config.server_ipv6 }}
+{%- endif %}
+
+{%- if config.ifconfig_ipv6 is defined %}
+ifconfig-ipv6 {{ config.ifconfig_ipv6 }}
+{%- endif %}
+
+{%- if config.ifconfig_ipv6_pool is defined %}
+ifconfig-ipv6-pool {{ config.ifconfig_ipv6_pool }}
 {%- endif %}
 
 {%- if config.ifconfig_pool_persist is defined %}
@@ -57,12 +59,6 @@ server-bridge {{ config.server_bridge }}
 {%- if config.push is defined %}
 {%- for push in config.push %}
 push "{{ push }}"
-{%- endfor %}
-{%- endif %}
-
-{%- if config.route is defined %}
-{%- for route in config.route %}
-route {{ route }}
 {%- endfor %}
 {%- endif %}
 
@@ -104,24 +100,23 @@ plugin {{ plugin }}
 client-cert-not-required
 {%- endif %}
 
-{%- if config.ifconfig is defined %}
-ifconfig {{ config.ifconfig }}
-{%- endif %}
-
-{%- if config.pkcs12 is defined %}
-pkcs12 {{ config.pkcs12 }}
+{%- if config.verify_client_cert is defined %}
+verify-client-cert {{ config.verify_client_cert }}
 {%- endif %}
 
 {%- if config.management is defined %}
 management {{ config.management }}
 {%- endif %}
 
-{%- if config.script_security is defined %}
-script-security {{ config.script_security }}
-{%- endif %}
-
 {%- if config.auth_user_pass_verify is defined %}
 auth-user-pass-verify {{ config.auth_user_pass_verify }}
+{%- endif %}
+
+{#- `false is number` and `true is number` both also return true... #}
+{%- if config.auth_gen_token is defined
+        and (config.auth_gen_token|int is sameas (config.auth_gen_token)
+             or config.auth_gen_token is sameas true) %}
+auth-gen-token{% if config.auth_gen_token is not sameas true %} {{ config.auth_gen_token|int }}{% endif %}
 {%- endif %}
 
 {%- if config.setenv is defined %}
