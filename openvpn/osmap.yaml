@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+---
+Debian:
+  external_repo_supported:
+    - wheezy
+    - jessie
+    - stretch
+Fedora:
+  client:
+    conf_dir: /etc/openvpn/client
+    service: openvpn-client
+  server:
+    conf_dir: /etc/openvpn/server
+    service: openvpn-server
+Ubuntu:
+  external_repo_supported:
+    - precise
+    - trusty
+    - xenial

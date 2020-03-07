@@ -1,7 +1,20 @@
+{% from "openvpn/macros.jinja" import multipart_param with context %}
+
+{%- if config.daemon is defined and config.daemon == True %}
+daemon
+{%- endif -%}
 
 ; Networking
 {%- if config.dev_node is defined %}
 dev-node {{ config.dev_node }}
+{%- endif %}
+
+{%- if config.dev_type is defined %}
+dev-type {{ config.dev_type }}
+{%- endif %}
+
+{%- if config.tun_ipv6 is defined and config.tun_ipv6 == True %}
+tun-ipv6
 {%- endif %}
 
 {%- if config.proto is defined %}
@@ -10,12 +23,42 @@ proto {{ config.proto }}
 proto udp
 {%- endif %}
 
+{%- if config.port is defined %}
+port {{ config.port }}
+{%- else %}
+port 1194
+{%- endif %}
+
+{%- if config.ping is defined %}
+ping {{ config.ping }}
+{%- endif %}
+
+{%- if config.ping_restart is defined %}
+ping-restart {{ config.ping_restart }}
+{%- endif %}
+
+{%- if config.ping_exit is defined %}
+ping-exit {{ config.ping_exit }}
+{%- endif %}
+
+{%- if config.ping_timer_rem is defined %}
+ping-timer-rem
+{%- endif %}
+
 {%- if config.keepalive is defined %}
 keepalive {{ config.keepalive }}
 {%- endif %}
 
+{%- if config.persist_remote_ip is defined and config.persist_remote_ip == True %}
+persist-remote-ip
+{%- endif %}
+
 {%- if config.tun_mtu is defined %}
 tun-mtu {{ config.tun_mtu }}
+{%- endif %}
+
+{%- if config.ifconfig_ipv6 is defined %}
+ifconfig-ipv6 {{ config.ifconfig_ipv6 }}
 {%- endif %}
 
 {%- if config.ifconfig is defined %}
@@ -24,7 +67,7 @@ ifconfig {{ config.ifconfig }}
 
 {%- if config.secret is defined %}{# Using simple site-to-site shared secret #}
 ; Site-to-Site
-secret {{ config.secret }}
+secret {{ multipart_param(config.secret) }}
 {%- endif %}
 
 {%- if config.remote is defined %}
@@ -57,15 +100,11 @@ group {{ config.group }}
 group {{ group }}
 {%- endif %}
 
-{%- if config.persist_key is defined and config.persist_key == False %}
-;persist-key
-{%- else %}
+{%- if not (config.persist_key is defined and config.persist_key == False) %}
 persist-key
 {%- endif %}
 
-{%- if config.persist_tun is defined and config.persist_tun == False %}
-;persist-tun
-{%- else %}
+{%- if not (config.persist_tun is defined and config.persist_tun == False) %}
 persist-tun
 {%- endif %}
 
@@ -77,9 +116,9 @@ explicit-exit-notify
 
 ; Data transfer
 {%- if config.comp_lzo is defined and config.comp_lzo == False %}
-;comp-lzo
-{%- else %}
-comp-lzo
+comp-lzo no
+{%- elif config.comp_lzo is defined %}
+comp-lzo {{ config.comp_lzo }}
 {%- endif %}
 
 
@@ -100,6 +139,10 @@ log {{ config.log }}
 
 {%- if config.log_append is defined %}
 log-append {{ config.log_append }}
+{%- endif %}
+
+{%- if config.syslog is defined and config.syslog %}
+syslog {%- if config.syslog is string %} {{ config.syslog }}{% endif %}
 {%- endif %}
 
 {%- if config.mute_replay_warnings is defined %}
@@ -134,16 +177,20 @@ key {{ config.key }}
 # key is not set !
 {%- endif %}
 
+{%- if config.pkcs12 is defined %}
+pkcs12 {{ config.pkcs12 }}
+{%- endif %}
+
 {%- if config.dh is defined %}
 dh {{ config.dh }}
-{%- else %}
+{%- elif config.server is defined  %}
 dh dh1024.pem
 {%- endif %}
 
-{%- if config.ta_content is defined and config.tls_crypt is defined %}
+{%- if config.tls_crypt is defined %}
 tls-crypt {{ config.tls_crypt }}
-{%- elif config.ta_content is defined and config.tls_auth is defined %}
-tls-auth {{ config.tls_auth }}
+{%- elif config.tls_auth is defined %}
+tls-auth {{ multipart_param(config.tls_auth) }}
 {%- endif %}
 
 {%- if config.reneg_sec is defined %}
@@ -227,3 +274,62 @@ up-restart
 auth {{ config.auth }}
 {%- endif %}
 
+{%- if config.fast_io is defined %}
+fast-io
+{%- endif %}
+
+{%- if config.key_direction is defined %}
+key-direction {{ config.key_direction }}
+{% endif %}
+
+{%- if config.route_method is defined %}
+route-method {{ config.route_method }}
+{% endif %}
+
+{%- if config.route_delay is defined %}
+route-delay {{ config.route_delay }}
+{% endif %}
+
+{%- if config.route_nopull is defined %}
+route-nopull
+{% endif %}
+
+{%- if config.route_ipv6 is defined %}
+{%- for route in config.route_ipv6 %}
+route-ipv6 {{ route }}
+{%- endfor %}
+{%- endif %}
+
+{%- if config.route is defined %}
+{%- for route in config.route %}
+route {{ route }}
+{%- endfor %}
+{%- endif %}
+
+{%- if config.fragment is defined %}
+fragment {{ config.fragment }}
+{% endif %}
+
+{%- if config.mssfix is defined %}
+mssfix {{ config.mssfix }}
+{% endif %}
+
+{%- if config.keysize is defined %}
+keysize {{ config.keysize }}
+{% endif %}
+
+{%- if config.sndbuf is defined %}
+sndbuf {{ config.sndbuf }}
+{% endif %}
+
+{%- if config.rcvbuf is defined %}
+rcvbuf {{ config.rcvbuf }}
+{% endif %}
+
+{%  if config.get('float', False) -%}
+float
+{%- endif %}
+
+{%- if config.script_security is defined %}
+script-security {{ config.script_security }}
+{%- endif %}
