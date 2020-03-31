@@ -37,3 +37,7 @@ auth-user-pass {{ config.auth_user_pass }}
 {%- if config.auth_nocache is defined %}
 auth-nocache
 {%- endif %}
+
+{%- if config.writepid is defined %}
+writepid {{ config.writepid }}
+{%- endif %}
