@@ -112,6 +112,10 @@ management {{ config.management }}
 auth-user-pass-verify {{ config.auth_user_pass_verify }}
 {%- endif %}
 
+{%- if config.writepid is defined %}
+writepid {{ config.writepid }}
+{%- endif %}
+
 {#- `false is number` and `true is number` both also return true... #}
 {%- if config.auth_gen_token is defined
         and (config.auth_gen_token|int is sameas (config.auth_gen_token)
